@@ -1,0 +1,32 @@
+header{
+}
+
+
+.grandpy{
+    height: 100px;
+}
+
+.banner{
+    display: inline-block;
+    vertical-align: top;
+    /*réduire la taille de la bannière */
+}
+
+.site-name{
+    width: 1000px;
+    text-align: middle;
+}
+
+body{
+    text-align: middle;
+}
+.main-field{
+    margin: 100px 100px 100px;
+    /*centrer horizontalement et un peu verticalement la question */
+}
+footer{
+    height: 60px;
+    margin: 10px;
+    text-align: right;
+    /*Aligner en bas à droite de la page. */
+}

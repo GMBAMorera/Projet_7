@@ -1,32 +1,83 @@
-header{
-}
+    /* Main */
+    .all{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 
 
-.grandpy{
-    height: 100px;
-}
+    /* Header */
+    header{
+        flex-basis: 0;
+        display: flex;
+        background-color: blueviolet;
+    }
 
-.banner{
-    display: inline-block;
-    vertical-align: top;
-    /*réduire la taille de la bannière */
-}
 
-.site-name{
-    width: 1000px;
-    text-align: middle;
-}
+    .grandpy{
+        text-align: middle;
+        height: 200px;
+    }
 
-body{
-    text-align: middle;
-}
-.main-field{
-    margin: 100px 100px 100px;
-    /*centrer horizontalement et un peu verticalement la question */
-}
-footer{
-    height: 60px;
-    margin: 10px;
-    text-align: right;
-    /*Aligner en bas à droite de la page. */
-}
+    .banner{
+        flex-grow: 5000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: middle;
+        vertical-align: top;
+    }
+
+    .site-name{
+        text-align: middle;
+        font-size: 40px;
+    }
+
+    .headline{
+        text-align: middle;
+        font-size: 20px;
+
+    }
+
+    /* Body */
+    body{
+        flex-basis: auto;
+        flex-grow: 5000;
+    }
+    .main-field{
+        display: flex;
+        align-content: stretch;
+    }
+    .answer{
+        display: flex;
+        align-content: space-between;
+    }
+    .ans-text{
+        overflow-y: scroll;
+        border: 1px solid #999;
+        height: 200px;
+        width: 400px;
+        text-align: justify;
+        
+    }
+
+    .ans-map{
+        border: 1px solid #999;
+        height: 300px;
+        width: 300px;
+        text-align: justify;
+        
+    }
+    /* Centrer horizontalement et un peu verticalement la question */
+
+
+
+    /* Footer */
+
+    footer{
+        flex-basis: 0;
+        height: 60px;
+        margin: 10px;
+        text-align: right;
+        /* Aligner en bas à droite de la page. */
+    }

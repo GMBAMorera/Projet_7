@@ -1,83 +1,71 @@
-    /* Main */
-    .all{
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
+.container-fluid{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap-reverse;
+    justify-content: space-between;
+    
+}
 
 
-    /* Header */
-    header{
-        flex-basis: 0;
-        display: flex;
-        background-color: blueviolet;
-    }
+/* Header */
+.header{
+    background-color: blueviolet;
+}
 
 
-    .grandpy{
-        text-align: middle;
-        height: 200px;
-    }
+.grandpy{
+    height: 200px;
+}
 
-    .banner{
-        flex-grow: 5000;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: middle;
-        vertical-align: top;
-    }
+.banner{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: top;
+}
 
-    .site-name{
-        text-align: middle;
-        font-size: 40px;
-    }
+.site-name{
+    text-align: middle;
+    font-size: 40px;
+}
 
-    .headline{
-        text-align: middle;
-        font-size: 20px;
+.headline{
+    text-align: middle;
+    font-size: 20px;
 
-    }
+}
 
-    /* Body */
-    body{
-        flex-basis: auto;
-        flex-grow: 5000;
-    }
-    .main-field{
-        display: flex;
-        align-content: stretch;
-    }
-    .answer{
-        display: flex;
-        align-content: space-between;
-    }
-    .ans-text{
-        overflow-y: scroll;
-        border: 1px solid #999;
-        height: 200px;
-        width: 400px;
-        text-align: justify;
-        
-    }
+/* Body */
+.body{
+    flex-grow: 1000;
+    display: flex;
+    flex-direction: column;
+}
+.ans-text{
+    overflow-y: scroll;
+    border: 1px solid #999;
+    height: 200px;
+    width: 400px;
+    text-align: justify;
+    
+}
 
-    .ans-map{
-        border: 1px solid #999;
-        height: 300px;
-        width: 300px;
-        text-align: justify;
-        
-    }
-    /* Centrer horizontalement et un peu verticalement la question */
+.ans-map{
+    border: 1px solid #999;
+    height: 300px;
+    width: 300px;
+    text-align: justify;
+    
+}
+/* Centrer horizontalement et un peu verticalement la question */
 
 
 
-    /* Footer */
+/* Footer */
 
-    footer{
-        flex-basis: 0;
-        height: 60px;
-        margin: 10px;
-        text-align: right;
-        /* Aligner en bas à droite de la page. */
-    }
+.footer{
+    background-color: blueviolet;
+    display: flex;
+    flex-direction: row-reverse;
+    /* Aligner en bas à droite de la page. */
+}

@@ -1,7 +1,17 @@
+import json
+
 class Response:
-    def __init__(self, desc_short, desc_long, link_text, link_href, place_id):
-        self.short = desc_short
-        self.long = desc_long
-        self.link_text = link_text
-        self.link_href = link_href
-        self.place_id = place_id
+    SHORT_INTRO = "Bien sûr mon poussin! La voici: "
+    LINK_TEXT = "[En savoir plus sur Wikipedia]"
+    def __init__(self, gmap, wiki):
+        response_dict = {
+            "short": "".join([self.SHORT_INTRO, gmap["formatted_address"]]),
+            "long": wiki["desc"],
+            "link": {
+                "text": self.LINK_TEXT,
+                "href": wiki["link"]
+            },
+            "map": gmap["place_id"]
+        }
+        self.json = json.dumps(response_dict)
+        

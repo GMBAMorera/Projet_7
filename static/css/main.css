@@ -1,8 +1,17 @@
+html{
+    min-height: 100vh;
+}
+
+body{
+    min-height: 100vh
+}
+
 .container-fluid{
     display: flex;
     flex-direction: column;
     flex-wrap: wrap-reverse;
     justify-content: space-between;
+    min-height: 100vh;
     
 }
 
@@ -36,11 +45,6 @@
 }
 
 /* Body */
-.body{
-    flex-grow: 1000;
-    display: flex;
-    flex-direction: column;
-}
 .ans-text{
     overflow-y: scroll;
     border: 1px solid #999;

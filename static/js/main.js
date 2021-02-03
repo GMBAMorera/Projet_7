@@ -1,12 +1,13 @@
 // Create Elements of an answer, out of the DOM.
 const answer = document.getElementsByClassName("answer")[0];
+const map = document.getElementsByClassName("map")[0];
 
 var loading = document.createElement("img");
 loading.classList.add("loading");
 loading.src = "/static/loading.webp";
 
 var ansText = document.createElement("div");
-ansText.classList.add("ans-text", "col-4");
+ansText.classList.add("ans-text", "col");
 var short = document.createElement("p");
 short.classList.add("short");
 var long = document.createElement("p");
@@ -19,7 +20,7 @@ ansText.appendChild(long);
 ansText.appendChild(link);
 
 var ansMap = document.createElement("div");
-ansMap.classList.add("ans-map", "col-4");
+ansMap.classList.add("ans-map", "col");
 
 
 // Start search
@@ -74,5 +75,5 @@ function insertAns(reqAns){
     link.href = reqAns.link.href;
     ansMap.innerHTML = reqAns.map;
     answer.appendChild(ansText);
-    answer.appendChild(ansMap);
+    map.appendChild(ansMap);
 }

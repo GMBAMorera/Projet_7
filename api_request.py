@@ -10,7 +10,7 @@ from response import Response
 
 
 class ApiRequest:
-    API_KEY = "AIzaSyDvBP_TNwyA_nlarRZzSBwsFnhyu1gXmrg"
+    API_KEY = "***"
     PLACE_BASE_URL = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
     LEN_LONG_DESC = 255
 

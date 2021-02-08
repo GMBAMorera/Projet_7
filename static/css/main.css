@@ -3,7 +3,7 @@ html{
 }
 
 body{
-    min-height: 100vh
+    min-height: 100vh;
 }
 
 .container-fluid{
@@ -23,7 +23,7 @@ body{
 
 
 .grandpy{
-    height: 200px;
+    height: 121px;
 }
 
 .banner{
@@ -41,27 +41,44 @@ body{
 .headline{
     text-align: middle;
     font-size: 20px;
-
 }
 
 /* Body */
-.ans-text{
-    overflow-y: scroll;
-    border: 1px solid #999;
-    height: 200px;
-    width: 400px;
-    text-align: justify;
-    
+.main-field{
+    display: flex;
+    margin: 2px 10px 2px;
 }
 
-.ans-map{
+.body-answer{
+    flex-grow: 10;
+}
+
+.text-zone{
+    border: 2px solid #999;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+}
+
+.text{
+    border: 1px solid #999;
+    width: 85%;
+    height: 250px;
+    text-align: justify;
+    margin: 2px;
+}
+
+.to-right{
+    align-self: flex-end;
+}
+
+.map{
     border: 1px solid #999;
     height: 300px;
     width: 300px;
     text-align: justify;
     
 }
-/* Centrer horizontalement et un peu verticalement la question */
 
 
 
@@ -71,5 +88,4 @@ body{
     background-color: blueviolet;
     display: flex;
     flex-direction: row-reverse;
-    /* Aligner en bas à droite de la page. */
 }

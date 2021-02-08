@@ -10,14 +10,13 @@ from response import Response
 
 
 class ApiRequest:
-    API_KEY = "***"
+    API_KEY = "AIzaSyDvBP_TNwyA_nlarRZzSBwsFnhyu1gXmrg"
     PLACE_BASE_URL = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
     LEN_LONG_DESC = 255
 
     INITIAL_GMAP_DELAY =  0.1
     MAX_GMAP_DELAY = 5
 
-    GRUMPY_GRANDPY_QUESTION_MARK = "Groumf!"
     GRUMPY_GRANDPY_MAX_ATTEMPT_FAILED = "Ooof!"
     GRUMPY_GRANDPY_UNKNOWN_ERROR = "Marf!"
     GRUMPY_GRANDPY_NO_WIKI_PAGE = "Tsss!"
@@ -94,16 +93,14 @@ class ApiRequest:
         return pop
 
     def _extract_queries(self):
-        return (
-            self.chunks[-1].strip(),
-            ' '.join(
+        return ' '.join(
                 [self.chunks[-3].strip(),
                 self.chunks[-2].strip(),
                 self.chunks[-1].strip()]
             )
-        )
 
     def gmap_request(self):
+        """Reqest google map for finding the place asked in the query."""
         url = self._get_url()
         result = self._get_gmap_result(url)
 
@@ -144,6 +141,8 @@ class ApiRequest:
             current_delay *= 2  # Increase the delay each time we retry.
 
     def wiki_request(self):
+        """Request WikiMedia for additional information
+        about the place found on google Map."""
         wiki_fr = Wiki('fr')
         page = wiki_fr.page(self._gmap_response['name'])
         if not page.exists():
@@ -171,6 +170,9 @@ class ApiRequest:
         while count < len(all_info) and len(info) + len(all_info[count]) < self.LEN_LONG_DESC:
             info = '. '.join([info, all_info[count]])
             count += 1
+
+        if info[-1] != '.':
+            info = info + '.'
         return info
 
     def _cut_info(self, info):

@@ -5,31 +5,37 @@ import urllib.parse
 import urllib.request
 from wikipediaapi import Wikipedia as Wiki
 
-from constants import STOP_WORDS
+from constants import STOP_WORDS, GRUMPY_GRANDPY_NO_GMAP_RESULT, GRUMPY_GRANDPY_NO_DESCRIPTION
 from response import Response
+from cred import API_KEY
 
 
 class ApiRequest:
-    API_KEY = "AIzaSyDvBP_TNwyA_nlarRZzSBwsFnhyu1gXmrg"
     PLACE_BASE_URL = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
+    GEO_BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json"
     LEN_LONG_DESC = 255
 
     INITIAL_GMAP_DELAY =  0.1
     MAX_GMAP_DELAY = 5
-
-    GRUMPY_GRANDPY_MAX_ATTEMPT_FAILED = "Ooof!"
-    GRUMPY_GRANDPY_UNKNOWN_ERROR = "Marf!"
-    GRUMPY_GRANDPY_NO_WIKI_PAGE = "Tsss!"
-    GRUMPY_GRANDPY_NO_SUMMARY = 'Aaargh!'
+    
 
     def __init__(self, question):
-        print(question)
+        question = self.decode(question)
         self._query = self.parser(question)
         print(self._query)
         self._gmap_response = self.gmap_request()
-        print(self._gmap_response)
-        self._wiki_response = self.wiki_request()
+
+        if (self._gmap_response == GRUMPY_GRANDPY_NO_GMAP_RESULT):
+            self._wiki_response = GRUMPY_GRANDPY_NO_DESCRIPTION
+        else:
+            self._wiki_response = self.wiki_request()
+
         self.json = Response(self._gmap_response, self._wiki_response).json
+        print("json:", self.json)
+
+    def decode(self, question):
+        """Decode the question, previously encoded in javascript."""
+        return question
 
     def parser(self, question):
         """ Cut the question into chunks who are stop words
@@ -42,7 +48,6 @@ class ApiRequest:
             alt_sw = self._expand_safe_word(SW)
             for asw in alt_sw:
                 self.chunks = self._split_question(asw)
-        print(self.chunks)
         return self._extract_queries()
 
     def _expand_safe_word(self, sw):
@@ -93,31 +98,51 @@ class ApiRequest:
         return pop
 
     def _extract_queries(self):
-        return ' '.join(
-                [self.chunks[-3].strip(),
-                self.chunks[-2].strip(),
-                self.chunks[-1].strip()]
-            )
+        if len(self.chunks) >= 3:
+            return ' '.join(c.strip() for c in self.chunks[-3:])
+        else:
+            return ' '.join([c.strip() for c in self.chunks])
 
     def gmap_request(self):
-        """Reqest google map for finding the place asked in the query."""
-        url = self._get_url()
+        """Request google map for finding the place asked in the query."""
+        url = self._get_place_url()
         result = self._get_gmap_result(url)
 
-        print(result)
         if result["status"] == "OK":
-            return result["candidates"][0]
+            if "candidates" in result:
+                result = result["candidates"][0]
+            else:
+                return GRUMPY_GRANDPY_NO_GMAP_RESULT
         else:
-            return self.GRUMPY_GRANDPY_UNKNOWN_ERROR
+            return GRUMPY_GRANDPY_NO_GMAP_RESULT
 
-    def _get_url(self):
-        """ Join the parts of the URL together into one string."""
+        geo_url = self._get_geocoding_url(result["formatted_address"])
+        position = self._get_gmap_result(geo_url)
+
+        if ("results" not in position
+            or "geometry" not in position["results"][0]
+            or "location" not in position["results"][0]["geometry"]):
+            result["position"] = {"lat": 0, "lng": 0}
+        else:
+            result["position"] = position["results"][0]["geometry"]["location"]
+        return result
+
+
+    def _get_place_url(self):
         params = urllib.parse.urlencode({
             "input": self._query,
-            "key": self.API_KEY,
-            "inputtype": "textquery", "fields":"formatted_address,name,place_id,icon"
+            "key": API_KEY,
+            "inputtype": "textquery", "fields":"formatted_address,name"
             })
         return f"{self.PLACE_BASE_URL}?{params}"
+
+    def _get_geocoding_url(self, address):
+        params = urllib.parse.urlencode({
+            "address": address,
+            "key": API_KEY
+            })
+        return f"{self.GEO_BASE_URL}?{params}"
+
 
     def _get_gmap_result(self, url):
         """ Get the API response and corresponding result."""
@@ -135,7 +160,7 @@ class ApiRequest:
                     return result
 
             if current_delay > self.MAX_GMAP_DELAY:
-                return self.GRUMPY_GRANDPY_MAX_ATTEMPT_FAILED
+                return GRUMPY_GRANDPY_NO_GMAP_RESULT
             print("Waiting", current_delay, "seconds before retrying.")
             time.sleep(current_delay)
             current_delay *= 2  # Increase the delay each time we retry.
@@ -146,7 +171,7 @@ class ApiRequest:
         wiki_fr = Wiki('fr')
         page = wiki_fr.page(self._gmap_response['name'])
         if not page.exists():
-            return self.GRUMPY_GRANDPY_NO_WIKI_PAGE
+            return GRUMPY_GRANDPY_NO_DESCRIPTION
         else:
             return {
                 "desc": self._extract_info(page.summary),
@@ -155,7 +180,7 @@ class ApiRequest:
 
     def _extract_info(self, summary):
         if summary == '':
-            return self.GRUMPY_GRANDPY_NO_SUMMARY
+            return GRUMPY_GRANDPY_NO_DESCRIPTION
 
         all_info = summary.split('. ')
         info = self._resume_info(all_info)

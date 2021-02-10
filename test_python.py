@@ -18,7 +18,7 @@ def test_parser3():
 
 def test_gmap_request():
     req = ApiRequest("quel est l'adresse de l'arc de triomphe?")
-    assert req._gmap_response == {'formatted_address': 'Place Charles de Gaulle, 75008 Paris, France', 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/museum-71.png', 'name': 'Arc de Triomphe', 'place_id': 'ChIJjx37cOxv5kcRPWQuEW5ntdk'}
+    assert req._gmap_response == {'formatted_address': 'Place Charles de Gaulle, 75008 Paris, France', 'name': 'Arc de Triomphe'}
 
 def test_wiki_request():
     req = ApiRequest("quel est l'adresse de l'arc de triomphe?")

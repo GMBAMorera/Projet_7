@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, send_file, make_response
 import json
+import os
 
 from api_request import ApiRequest
 
@@ -14,9 +15,8 @@ class Main:
         return render_template('page.html')
 
     def req(self, question):
-        reqAnswer = ApiRequest(question)
-        return reqAnswer.json
-
+        print("req: ", question)
+        return ApiRequest(question).json
 
 if __name__ == "__main__":
     m = Main()

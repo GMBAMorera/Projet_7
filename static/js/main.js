@@ -1,6 +1,7 @@
 // Create Elements of an answer, out of the DOM.
 const answer = document.getElementsByClassName("answer")[0];
-const map = document.getElementsByClassName("map")[0];
+const mapDiv = document.getElementById("map");
+const mapCode = document.getElementsByClassName("map-code")[0];
 const questions = document.getElementsByClassName("questions")[0];
 
 var loading = document.createElement("img");
@@ -10,54 +11,31 @@ loading.src = "/static/loading.webp";
 
 // Start search
 const button = document.getElementsByClassName("button")[0];
-button.addEventListener('click', search);
+button.addEventListener('click', search)
 
 function search(event){
     event.preventDefault();
+
     var form = document.getElementsByClassName("form-text")[0].value;
-    if (form == "Salut GrandPy ! Est-ce que tu connais l'adresse d'OpenClassrooms ?"){
-        scriptReq();
-    } else {
-        req(form);
-    }
-}
+    console.log(form);
 
-function scriptReq(){
-    // Canonical question and canonical answer.
-    var reqAns = {
-        question: "Salut GrandPy ! Est-ce que tu connais l'adresse d'OpenClassrooms ?",
-        short:  "Bien sûr mon poussin ! La voici : 7 cité Paradis, 75010 Paris.",
-        long: "Mais t'ai-je déjà raconté l'histoire de ce quartier qui m'a vu en culottes courtes ? La cité Paradis est une voie publique située dans le 10e arrondissement de Paris. Elle est en forme de té, une branche débouche au 43 rue de Paradis, la deuxième au 57 rue d'Hauteville et la troisième en impasse.",
-        link: {
-            text: "[En savoir plus sur Wikipedia]",
-            href: "https://fr.wikipedia.org/wiki/Cit%C3%A9_Paradis"
-        },
-        map: "Ceci est une carte"
-    };
-    insertAns(reqAns);
-}
-
-function req(form){
     answer.appendChild(loading);
-    // Fetch answer onto the server
-    var request = new XMLHttpRequest();
-    request.open("GET", `http://127.0.0.1:8080/question/${form}`);
-    request.send();
 
-    request.onreadystatechange= function () {
-        if (this.readyState == XMLHttpRequest.DONE && this.status == 200){
-            answer.removeChild(loading);
-            reqAns = JSON.parse(request.responseText);
-            reqAns.question = form
-            insertAns(reqAns);
-        }
-    };
+    downloadAns(form);
+}
+
+function downloadAns(form){
+    // Fetch answer onto the server
+    fetch(`http://127.0.0.1:8080/question/${encodeURIComponent(form)}`)
+    .then(res => res.json())
+    .then(info => insertAns(form, info));
 }
 
 
-function insertAns(reqAns){
-    // Display answer
+function insertAns(form, info){
+    answer.removeChild(loading);
 
+    // Display answer
     var ansText = document.createElement("div");
     ansText.classList.add("text", "row", "to-right");
     var short = document.createElement("p");
@@ -75,16 +53,31 @@ function insertAns(reqAns){
     ansText.appendChild(long);
     ansText.appendChild(link);
 
-    short.innerHTML = reqAns.short;
-    long.innerHTML = reqAns.long;
-    link.innerHTML = reqAns.link.text;
-    link.href = reqAns.link.href;
-    quesText.innerHTML = reqAns.question;
-    map.innerHTML = reqAns.map;
+    short.innerHTML = info.short;
+    long.innerHTML = info.long;
+    link.innerHTML = info.link.text;
+    link.href = info.link.href;
+    quesText.innerHTML = form;
+    createMap(info.position, 14);
     if (window.screen.width >= 992){
         answer.appendChild(ansText);
     }
     else {
         questions.appendChild(ansText);
     }
+}
+
+function createMap(center, zoom){
+    var map = new google.maps.Map(mapDiv, {
+        zoom: zoom,
+        center: center
+    })
+    var marker = new google.maps.Marker({
+        position: center,
+        map: map
+    })
+}
+
+function initMap(){
+    createMap({lat:0, lng:0}, 0)
 }

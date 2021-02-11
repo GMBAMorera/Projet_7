@@ -21,14 +21,26 @@ function search(event){
 
     answer.appendChild(loading);
 
-    downloadAns(form);
+    var counter = 0;
+    const specialCar = "<>$%{}[]`|~^*";
+    for (let s of specialCar) {
+        if (form.includes(s)){
+            counter = 1;
+            break;
+        }
+    }
+    if (counter == 1){
+        downloadAns(form, "shdhfhfg");
+    } else {
+        downloadAns(form, form);
+    }
 }
 
-function downloadAns(form){
+function downloadAns(question, form){
     // Fetch answer onto the server
-    fetch(`http://127.0.0.1:8080/question/${encodeURIComponent(form)}`)
+    fetch(`http://127.0.0.1:8080/question/${form}`)
     .then(res => res.json())
-    .then(info => insertAns(form, info));
+    .then(info => insertAns(question, info));
 }
 
 

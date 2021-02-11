@@ -20,7 +20,6 @@ class ApiRequest:
     
 
     def __init__(self, question):
-        question = self.decode(question)
         self._query = self.parser(question)
         print(self._query)
         self._gmap_response = self.gmap_request()
@@ -33,120 +32,105 @@ class ApiRequest:
         self.json = Response(self._gmap_response, self._wiki_response).json
         print("json:", self.json)
 
-    def decode(self, question):
-        """Decode the question, previously encoded in javascript."""
-        return question
-
+    # Parser
     def parser(self, question):
         """ Cut the question into chunks who are stop words
         or who were inserted beween stop word.
-        Then, extract the last expression."""
+        Then, extract the last three expressions."""
 
         # Initialize the list of chunks
-        self.chunks = [' ' + question]
+        self._chunks = [' ' + question.lower()]
         for SW in STOP_WORDS:
-            alt_sw = self._expand_safe_word(SW)
-            for asw in alt_sw:
-                self.chunks = self._split_question(asw)
-        return self._extract_queries()
+            alternatives_stop_words = self._expand_safe_word(SW)
+            for asw in alternatives_stop_words:
+                self._chunks = self._split_question(asw)
+        return self._extract_query()
 
     def _expand_safe_word(self, sw):
-        """ List all variant of possibily encountered stop word."""
+        """ List all variants of possibily encountered stop word."""
         return [
             sw.join([' ', ' ']),
             sw.join([' ', ',']),
             sw.join([' ', '.'])
         ]
 
-    def _split_question(self, asw):
+    def _split_question(self, stop_word):
         """recursively split a question into a list of a specific stop word
-        and words bteween two such words."""
-        new_chunks = self.chunks.copy()
+        and words bteween two stop words."""
+        new_chunks = self._chunks.copy()
         count = 0
-        for c in self.chunks:
-            sw_chunks = self._split_in_chunks(c, asw)
-            new_chunks, count = self._integrate_chunks(sw_chunks, asw, new_chunks, count)
+        for c in self._chunks:
+            c_chunks = c.split(stop_word)
+            c_chunks = self._aerate_chunks(c_chunks)
+            c_chunks = self._intercalate_stop_word(c_chunks, stop_word)
+            c_chunks = self._delete_extra_chunk(c_chunks)
+            new_chunks, count = self._integrate_chunks(
+                c_chunks, new_chunks, count)
         return new_chunks
 
-    def _split_in_chunks(self, c, asw):
-        sw_chunks = c.split(asw)
-        if len(sw_chunks) != 1:
-            sw_chunks = (
-                [''.join([sw_chunks[0], ' '])]
-                + [''.join([' ', s, ' ']) for s in sw_chunks[1:-1]]
-                + [''.join([' ', sw_chunks[-1]])]
+    def _aerate_chunks(self, c_chunks):
+        if len(c_chunks) != 1:
+            c_chunks = (
+                [''.join([c_chunks[0], ' '])]
+                + [''.join([' ', s, ' ']) for s in c_chunks[1:-1]]
+                + [''.join([' ', c_chunks[-1]])]
             )
-        return sw_chunks
+        return c_chunks
 
-    def _integrate_chunks(self, sw_chunks, asw, new_chunks, count):
-        pop = self._compute_deleted_char(sw_chunks)
+    def _intercalate_stop_word(self, c_chunks, stop_word):
+        alt_c_chunks = [None]*(len(c_chunks*2))
+        alt_c_chunks[::2] = c_chunks
+        alt_c_chunks[1::2] = [stop_word]*len(c_chunks)
+        return alt_c_chunks
 
-        alt_sw_chunks = [None]*(len(sw_chunks*2))
-        alt_sw_chunks[::2] = sw_chunks
-        alt_sw_chunks[1::2] = [asw]*len(sw_chunks)
-        alt_sw_chunks.pop(pop)
+    def _delete_extra_chunk(self, c_chunks):
+        if c_chunks[-2] == "":
+            c_chunks = c_chunks[:-2]
+        else:
+            c_chunks = c_chunks[:-1]
+        
+        if c_chunks[0] == "":
+            c_chunks = c_chunks[1:]
+        return c_chunks
 
-        new_chunks = new_chunks[:count] + alt_sw_chunks + new_chunks[count + 1:]
-        count += len(alt_sw_chunks)
+    def _integrate_chunks(self, c_chunks, new_chunks, count):
+        new_chunks = new_chunks[:count] + c_chunks + new_chunks[count + 1:]
+        count += len(c_chunks)
         return new_chunks, count
 
-    def _compute_deleted_char(self, sw_chunks):
-        if sw_chunks[-1] == "":
-            pop = -2
+    def _extract_query(self):
+        print (self._chunks)
+        if len(self._chunks) >= 3:
+            return ' '.join(c.strip() for c in self._chunks[-3:])
         else:
-            pop = -1
-        return pop
+            return ' '.join(c.strip() for c in self._chunks)
 
-    def _extract_queries(self):
-        if len(self.chunks) >= 3:
-            return ' '.join(c.strip() for c in self.chunks[-3:])
-        else:
-            return ' '.join([c.strip() for c in self.chunks])
-
+    # Google Maps API requests
     def gmap_request(self):
         """Request google map for finding the place asked in the query."""
-        url = self._get_place_url()
-        result = self._get_gmap_result(url)
+        url = self._get_places_url()
+        print(url)
+        results = self._get_gmap_results(url)
+        results = self._check_places_results(results)
 
-        if result["status"] == "OK":
-            if "candidates" in result:
-                result = result["candidates"][0]
-            else:
-                return GRUMPY_GRANDPY_NO_GMAP_RESULT
-        else:
-            return GRUMPY_GRANDPY_NO_GMAP_RESULT
+        if results != GRUMPY_GRANDPY_NO_GMAP_RESULT:
+            geo_url = self._get_geocoding_url(results["formatted_address"])
+            geo_results = self._get_gmap_results(geo_url)
+            results["position"] = self._check_geocoding_results(geo_results)
+        return results
 
-        geo_url = self._get_geocoding_url(result["formatted_address"])
-        position = self._get_gmap_result(geo_url)
-
-        if ("results" not in position
-            or "geometry" not in position["results"][0]
-            or "location" not in position["results"][0]["geometry"]):
-            result["position"] = {"lat": 0, "lng": 0}
-        else:
-            result["position"] = position["results"][0]["geometry"]["location"]
-        return result
-
-
-    def _get_place_url(self):
+    def _get_places_url(self):
         params = urllib.parse.urlencode({
             "input": self._query,
             "key": API_KEY,
-            "inputtype": "textquery", "fields":"formatted_address,name"
+            "inputtype": "textquery",
+            "fields": "formatted_address,name"
             })
         return f"{self.PLACE_BASE_URL}?{params}"
 
-    def _get_geocoding_url(self, address):
-        params = urllib.parse.urlencode({
-            "address": address,
-            "key": API_KEY
-            })
-        return f"{self.GEO_BASE_URL}?{params}"
-
-
-    def _get_gmap_result(self, url):
+    def _get_gmap_results(self, url):
         """ Get the API response and corresponding result."""
-        current_delay = self.INITIAL_GMAP_DELAY  # Set the initial retry delay to 100ms.
+        current_delay = self.INITIAL_GMAP_DELAY
         while True:
             try:
                 # Get the API response.
@@ -161,16 +145,49 @@ class ApiRequest:
 
             if current_delay > self.MAX_GMAP_DELAY:
                 return GRUMPY_GRANDPY_NO_GMAP_RESULT
-            print("Waiting", current_delay, "seconds before retrying.")
-            time.sleep(current_delay)
-            current_delay *= 2  # Increase the delay each time we retry.
+            current_delay = self._wait(current_delay)
 
+    def _wait(self, current_delay):
+        print("Waiting", current_delay, "seconds before retrying.")
+        time.sleep(current_delay)
+        return current_delay * 2  # Increase the delay each time we retry.
+
+    def _check_places_results(self, results):
+        if self._if_results(results):
+            return results["candidates"][0]
+        else:
+            return GRUMPY_GRANDPY_NO_GMAP_RESULT
+
+    def _if_results(self, results):
+        return (type(results) == dict 
+            and results["status"] == "OK"
+            and "candidates" in results)
+
+    def _get_geocoding_url(self, address):
+        params = urllib.parse.urlencode({
+            "address": address,
+            "key": API_KEY
+            })
+        return f"{self.GEO_BASE_URL}?{params}"
+
+    def _if_position(self, geo_results):
+        return (type(geo_results) == dict
+            and "results" in geo_results
+            and "geometry" in geo_results["results"][0]
+            and "location" in geo_results["results"][0]["geometry"])
+
+    def _check_geocoding_results(self, geo_results):
+        if self._if_position(geo_results):
+            return geo_results["results"][0]["geometry"]["location"]
+        else:
+            return {"lat": 0, "lng": 0}
+
+    # WikiMedia API request
     def wiki_request(self):
         """Request WikiMedia for additional information
         about the place found on google Map."""
-        wiki_fr = Wiki('fr')
-        page = wiki_fr.page(self._gmap_response['name'])
-        if not page.exists():
+        page = self._find_page()
+        if page.summary == '':
             return GRUMPY_GRANDPY_NO_DESCRIPTION
         else:
             return {
@@ -178,34 +195,43 @@ class ApiRequest:
                 "link": page.fullurl
             }
 
+    def _find_page(self):
+        wiki_fr = Wiki('fr')
+        page = wiki_fr.page(self._gmap_response['name'])
+        if not page.exists():
+            page = wiki_fr.page(self._query)
+        return page
+
     def _extract_info(self, summary):
-        if summary == '':
-            return GRUMPY_GRANDPY_NO_DESCRIPTION
-
-        all_info = summary.split('. ')
-        info = self._resume_info(all_info)
-
-        if len(all_info) == 1 and len(info) > self.LEN_LONG_DESC:
-            info = self._cut_info(info)
-        return info
-
-    def _resume_info(self, all_info):
-        count = 1
-        info = all_info[0]
-        while count < len(all_info) and len(info) + len(all_info[count]) < self.LEN_LONG_DESC:
-            info = '. '.join([info, all_info[count]])
-            count += 1
-
-        if info[-1] != '.':
-            info = info + '.'
-        return info
+        split_summary = summary.split('. ')
+        if len(split_summary[0]) > self.LEN_LONG_DESC:
+            return self._cut_info(split_summary[0])
+        else:
+            return self._resume_info(split_summary)
 
     def _cut_info(self, info):
-        # if a one-phrase intro is stil too long, cut all parts into parenthesis.
+        # if a one-phrase intro is too long,
+        # delete all parts into parenthesis.
         while '(' in info:
             info = info.partition(' (')[0] + info.partition(')')[-1]
         if len(info) > 255:
             # if it is still too long, cut at the first semi-colon if exist.
             info = info.partition(';')[0]
-            # if no semi-colon, accept the length.
+        # if there is no semi-colon, accept the length.
         return info
+
+    def _resume_info(self, split_summary):
+        info = split_summary[0]
+        for sentence in split_summary[1:]:
+            augmented_info = '. '.join([info, sentence])
+            if len(augmented_info) > self.LEN_LONG_DESC:
+                break
+            info = augmented_info
+
+        return self._info_with_dot(info)
+
+    def _info_with_dot(self, info):
+        if info[-1] != '.':
+            return info + '.'
+        else:
+            return info

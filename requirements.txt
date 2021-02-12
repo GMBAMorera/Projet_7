@@ -1,0 +1,2 @@
+wikipediaapi
+flask

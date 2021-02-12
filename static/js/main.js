@@ -38,7 +38,10 @@ function search(event){
 
 function downloadAns(question, form){
     // Fetch answer onto the server
-    fetch(`http://127.0.0.1:8080/question/${form}`)
+    fetch(`http://127.0.0.1:8080/question`, {
+        method: 'POST',
+        body: form
+    })
     .then(res => res.json())
     .then(info => insertAns(question, info));
 }
@@ -80,6 +83,7 @@ function insertAns(form, info){
 }
 
 function createMap(center, zoom){
+    console.log(center)
     var map = new google.maps.Map(mapDiv, {
         zoom: zoom,
         center: center

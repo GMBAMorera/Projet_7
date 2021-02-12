@@ -30,24 +30,25 @@ class Response:
 
     def __init__(self, gmap, wiki):
         all_description = self._extract_desc(gmap, wiki)
-        self.json = self._make_response(*all_description)
+        self._response = self._make_response(*all_description)
+        self.json = json.dumps(self._response)
 
     def _extract_desc(self, gmap, wiki):
         if gmap == GRUMPY_GRANDPY_NO_GMAP_RESULT:
-            short = self.NO_GMAP["short"],
+            short = self.NO_GMAP["short"]
             position = self.NO_GMAP["position"]
         else:
-            short = self._pick_intro(self.SHORT_INTRO, gmap["formatted_address"]),
+            short = self._pick_intro(self.SHORT_INTRO, gmap["formatted_address"])
             position = gmap["position"]
 
         if wiki == GRUMPY_GRANDPY_NO_DESCRIPTION:
-            long_desc = self.NO_DESC["long_desc"],
-            text_link = self.NO_DESC["text_link"],
-            href_link = self.NO_DESC["href_link"],
+            long_desc = self.NO_DESC["long_desc"]
+            text_link = self.NO_DESC["text_link"]
+            href_link = self.NO_DESC["href_link"]
         else:
-            long_desc = self._pick_intro(self.LONG_INTRO, wiki["desc"]),
-            text_link = self.LINK_TEXT,
-            href_link = wiki["link"],
+            long_desc = self._pick_intro(self.LONG_INTRO, wiki["desc"])
+            text_link = self.LINK_TEXT
+            href_link = wiki["link"]
         return short, position, long_desc, text_link, href_link
 
     def _pick_intro(self, all_intro, body):
@@ -57,7 +58,7 @@ class Response:
         return " ".join([intro, body])
 
     def _make_response(self, short, position, long_desc, text_link, href_link):
-        response_dict = {
+        return {
             "short": short,
             "long": long_desc,
             "link": {
@@ -66,6 +67,5 @@ class Response:
             },
             "position": position
         }
-        return json.dumps(response_dict)
 
         

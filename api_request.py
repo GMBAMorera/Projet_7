@@ -1,5 +1,5 @@
 import json
-import time
+from time import sleep
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -21,7 +21,6 @@ class ApiRequest:
 
     def __init__(self, question):
         self._query = self.parser(question)
-        print(self._query)
         self._gmap_response = self.gmap_request()
 
         if (self._gmap_response == GRUMPY_GRANDPY_NO_GMAP_RESULT):
@@ -30,7 +29,6 @@ class ApiRequest:
             self._wiki_response = self.wiki_request()
 
         self.json = Response(self._gmap_response, self._wiki_response).json
-        print("json:", self.json)
 
     # Parser
     def parser(self, question):
@@ -39,7 +37,7 @@ class ApiRequest:
         Then, extract the last three expressions."""
 
         # Initialize the list of chunks
-        self._chunks = [' ' + question.lower()]
+        self._chunks = [' ' + question]
         for SW in STOP_WORDS:
             alternatives_stop_words = self._expand_safe_word(SW)
             for asw in alternatives_stop_words:
@@ -84,12 +82,12 @@ class ApiRequest:
         return alt_c_chunks
 
     def _delete_extra_chunk(self, c_chunks):
-        if c_chunks[-2] == "":
+        if c_chunks[-2] == " ":
             c_chunks = c_chunks[:-2]
         else:
             c_chunks = c_chunks[:-1]
         
-        if c_chunks[0] == "":
+        if c_chunks[0] == " ":
             c_chunks = c_chunks[1:]
         return c_chunks
 
@@ -99,7 +97,6 @@ class ApiRequest:
         return new_chunks, count
 
     def _extract_query(self):
-        print (self._chunks)
         if len(self._chunks) >= 3:
             return ' '.join(c.strip() for c in self._chunks[-3:])
         else:
@@ -109,7 +106,6 @@ class ApiRequest:
     def gmap_request(self):
         """Request google map for finding the place asked in the query."""
         url = self._get_places_url()
-        print(url)
         results = self._get_gmap_results(url)
         results = self._check_places_results(results)
 
@@ -149,7 +145,7 @@ class ApiRequest:
 
     def _wait(self, current_delay):
         print("Waiting", current_delay, "seconds before retrying.")
-        time.sleep(current_delay)
+        sleep(current_delay)
         return current_delay * 2  # Increase the delay each time we retry.
 
     def _check_places_results(self, results):
@@ -170,17 +166,17 @@ class ApiRequest:
             })
         return f"{self.GEO_BASE_URL}?{params}"
 
-    def _if_position(self, geo_results):
-        return (type(geo_results) == dict
-            and "results" in geo_results
-            and "geometry" in geo_results["results"][0]
-            and "location" in geo_results["results"][0]["geometry"])
-
     def _check_geocoding_results(self, geo_results):
         if self._if_position(geo_results):
             return geo_results["results"][0]["geometry"]["location"]
         else:
             return {"lat": 0, "lng": 0}
+
+    def _if_position(self, geo_results):
+        return (type(geo_results) == dict
+            and "results" in geo_results
+            and "geometry" in geo_results["results"][0]
+            and "location" in geo_results["results"][0]["geometry"])
 
     # WikiMedia API request
     def wiki_request(self):
@@ -210,11 +206,10 @@ class ApiRequest:
             return self._resume_info(split_summary)
 
     def _cut_info(self, info):
-        # if a one-phrase intro is too long,
-        # delete all parts into parenthesis.
+        # if a one-phrase intro is too long delete all parts into parenthesis.
         while '(' in info:
             info = info.partition(' (')[0] + info.partition(')')[-1]
-        if len(info) > 255:
+        if len(info) > self.LEN_LONG_DESC:
             # if it is still too long, cut at the first semi-colon if exist.
             info = info.partition(';')[0]
         # if there is no semi-colon, accept the length.

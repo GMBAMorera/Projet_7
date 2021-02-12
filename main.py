@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, send_file, make_response
+from flask import Flask, render_template, request
 import json
 import os
 
@@ -9,13 +9,13 @@ class Main:
     def __init__(self):
         self.app = Flask(__name__)
         self.app.add_url_rule('/', 'home', self.home)
-        self.app.add_url_rule('/question/<question>', 'req', self.req)
+        self.app.add_url_rule('/question', 'req', self.req, methods=['POST'])
 
     def home(self):
         return render_template('page.html')
 
-    def req(self, question):
-        print("req: ", question)
+    def req(self):
+        question = request.data.decode("utf-8")
         return ApiRequest(question).json
 
 if __name__ == "__main__":

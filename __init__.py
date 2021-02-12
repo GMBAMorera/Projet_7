@@ -21,4 +21,4 @@ class Main:
 
 if __name__ == "__main__":
     m = Main()
-    m.app.run()
+    m.app.run("https://ocgrandpy.herokuapp.com/")

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import json
 import os
+from waitress import serve
 
 from api_request import ApiRequest
 
@@ -21,4 +22,4 @@ class Main:
 
 if __name__ == "__main__":
     m = Main()
-    m.app.run("https://ocgrandpy.herokuapp.com/it")
+    serve(m.app)

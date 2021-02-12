@@ -10,7 +10,7 @@ class Main:
     def __init__(self):
         self.app = Flask(__name__)
         self.app.config.from_pyfile('config.py', silent=True)
-        self.app.add_url_rule('/', 'home', self.home)
+        self.app.add_url_rule('/', 'home', self.home, methods=['GET', 'POST'])
         self.app.add_url_rule('/question', 'req', self.req, methods=['POST'])
 
     def home(self):

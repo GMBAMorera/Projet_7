@@ -8,6 +8,7 @@ class Main:
     """ This class load the HTML page."""
     def __init__(self):
         self.app = Flask(__name__)
+        self.app.config.from_pyfile('config.py', silent=True)
         self.app.add_url_rule('/', 'home', self.home)
         self.app.add_url_rule('/question', 'req', self.req, methods=['POST'])
 
@@ -20,4 +21,4 @@ class Main:
 
 if __name__ == "__main__":
     m = Main()
-    m.app.run(host="0.0.0.0")
+    m.app.run()

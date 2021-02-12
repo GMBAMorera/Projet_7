@@ -20,4 +20,4 @@ class Main:
 
 if __name__ == "__main__":
     m = Main()
-    m.app.run(debug=True, port=8080)
+    m.app.run()

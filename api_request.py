@@ -4,10 +4,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from wikipediaapi import Wikipedia as Wiki
+from os import environ
 
 from constants import STOP_WORDS, GRUMPY_GRANDPY_NO_GMAP_RESULT, GRUMPY_GRANDPY_NO_DESCRIPTION
 from response import Response
-from cred import API_KEY
 
 
 class ApiRequest:
@@ -118,7 +118,7 @@ class ApiRequest:
     def _get_places_url(self):
         params = urllib.parse.urlencode({
             "input": self._query,
-            "key": API_KEY,
+            "key": environ['API_KEY'],
             "inputtype": "textquery",
             "fields": "formatted_address,name"
             })
@@ -162,7 +162,7 @@ class ApiRequest:
     def _get_geocoding_url(self, address):
         params = urllib.parse.urlencode({
             "address": address,
-            "key": API_KEY
+            "key": environ['API_KEY']
             })
         return f"{self.GEO_BASE_URL}?{params}"
 

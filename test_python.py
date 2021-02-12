@@ -1,14 +1,13 @@
 import urllib.request
-
 from wikipediaapi import Wikipedia as Wiki
 import json
 from time import time
 import pytest
 from io import BytesIO
+from os import environ
 
 from api_request import ApiRequest
 from response import Response
-from cred import API_KEY
 from constants import (GRUMPY_GRANDPY_NO_GMAP_RESULT, GRUMPY_GRANDPY_NO_DESCRIPTION,
     MOCKSUMMARY, MOCKURL, MOCKREQUEST, PARSERTEST1, PARSERTEST2, PARSERTEST3,
     QUERYTEST1, QUERYTEST2, QUERYTEST3, SAFEWORDTEST, EXPANDSAFEWORDTEST,
@@ -107,7 +106,7 @@ class TestApiRequest:
     ## Google maps requests submethods
     def test__get_places_url(self):
         self.req._query = TESTQUERY
-        assert self.req._get_places_url() == TESTPLACESURL.format(API_KEY)
+        assert self.req._get_places_url() == TESTPLACESURL.format(environ['API_KEY'])
 
     def test__get_gmap_results(self):
         url = TESTPLACESURL
@@ -143,7 +142,7 @@ class TestApiRequest:
         assert not self.req._if_results(PLACESRESPONSE4)
 
     def test__get_geocoding_url(self):
-        assert self.req._get_geocoding_url(ADDRESS) == GEOCODINGURL.format(API_KEY)
+        assert self.req._get_geocoding_url(ADDRESS) == GEOCODINGURL.format(environ['API_KEY'])
 
     def test__check_geocoding_results_1(self):
         assert self.req._check_geocoding_results(GEORESPONSE1) == GEORESULT1

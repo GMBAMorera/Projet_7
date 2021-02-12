@@ -20,4 +20,4 @@ class Main:
 
 if __name__ == "__main__":
     m = Main()
-    m.app.run()
+    m.app.run(host="0.0.0.0")

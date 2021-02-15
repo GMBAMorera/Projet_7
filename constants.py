@@ -3,7 +3,7 @@ STOP_WORDS = ["a","abord","absolument","afin","ah","ai","aie","ailleurs","ainsi"
 GRUMPY_GRANDPY_NO_GMAP_RESULT= "Grmbl!"
 GRUMPY_GRANDPY_NO_DESCRIPTION = "Mrrf!"
 
-### API CONSTANTS ###
+### TESTS APIREQQUESTS CONSTANTS ###
 
 MOCKSUMMARY = "Ceci est un résumé."
 MOCKURL = "Ceci est un lien."

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import json
 import os
 from waitress import serve
+from os import environ
 
 from api_request import ApiRequest
 
@@ -22,4 +23,4 @@ class Main:
 
 if __name__ == "__main__":
     m = Main()
-    serve(m.app)
+    serve(m.app, port=environ['PORT'])

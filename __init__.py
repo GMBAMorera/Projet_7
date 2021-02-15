@@ -23,4 +23,9 @@ class Main:
 
 if __name__ == "__main__":
     m = Main()
-    serve(m.app, port=environ['PORT'])
+    try:
+        port = environ['PORT']
+        print(port)
+    except:
+        port = 5000
+    serve(m.app, port=port)

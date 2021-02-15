@@ -38,7 +38,7 @@ function search(event){
 
 function downloadAns(question, form){
     // Fetch answer onto the server
-    fetch(`http://ocgrandpy.herokuapp.com/question`, {
+    fetch(`https://ocgrandpy.herokuapp.com/question`, {
         method: 'POST',
         body: form
     })

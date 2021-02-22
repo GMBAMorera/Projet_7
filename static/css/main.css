@@ -62,8 +62,7 @@ body{
 
 .text{
     border: 1px solid #999;
-    width: 85%;
-    height: 250px;
+    width: 70%;
     text-align: justify;
     margin: 2px;
 }

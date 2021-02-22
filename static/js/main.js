@@ -1,8 +1,7 @@
 // Create Elements of an answer, out of the DOM.
-const answer = document.getElementsByClassName("answer")[0];
 const mapDiv = document.getElementById("map");
 const mapCode = document.getElementsByClassName("map-code")[0];
-const questions = document.getElementsByClassName("questions")[0];
+const qAndA = document.getElementsByClassName("qanda")[0];
 
 var loading = document.createElement("img");
 loading.classList.add("loading");
@@ -62,7 +61,7 @@ function insertAns(form, info){
 
     var quesText = document.createElement("div");
     quesText.classList.add("text", "row");
-    questions.appendChild(quesText);
+    qAndA.appendChild(quesText);
 
     ansText.appendChild(short);
     ansText.appendChild(long);
@@ -74,12 +73,7 @@ function insertAns(form, info){
     link.href = info.link.href;
     quesText.innerHTML = form;
     createMap(info.position, 14);
-    if (window.screen.width >= 992){
-        answer.appendChild(ansText);
-    }
-    else {
-        questions.appendChild(ansText);
-    }
+    qAndA.appendChild(ansText);
 }
 
 function createMap(center, zoom){

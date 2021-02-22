@@ -54,8 +54,8 @@ body{
 }
 
 .qanda{
-    height: 50vh;
-    overflow-y: scroll;
+    height: 40vh;
+    overflow-y: auto;
 }
 
 .text-zone{

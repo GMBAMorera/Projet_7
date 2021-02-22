@@ -61,7 +61,6 @@ function insertAns(form, info){
 
     var quesText = document.createElement("div");
     quesText.classList.add("text", "row");
-    qAndA.appendChild(quesText);
 
     ansText.appendChild(short);
     ansText.appendChild(long);
@@ -73,7 +72,9 @@ function insertAns(form, info){
     link.href = info.link.href;
     quesText.innerHTML = form;
     createMap(info.position, 14);
+
     qAndA.appendChild(ansText);
+    qAndA.appendChild(quesText);
 }
 
 function createMap(center, zoom){

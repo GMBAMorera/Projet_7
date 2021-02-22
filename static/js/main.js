@@ -18,7 +18,7 @@ function search(event){
     var form = document.getElementsByClassName("form-text")[0].value;
     console.log(form);
 
-    answer.appendChild(loading);
+    qAndA.appendChild(loading);
 
     var counter = 0;
     const specialCar = "<>$%{}[]`|~^*";
@@ -47,7 +47,7 @@ function downloadAns(question, form){
 
 
 function insertAns(form, info){
-    answer.removeChild(loading);
+    qAndA.removeChild(loading);
 
     // Display answer
     var ansText = document.createElement("div");

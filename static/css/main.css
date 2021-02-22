@@ -53,11 +53,6 @@ body{
     flex-grow: 10;
 }
 
-.qanda{
-    height: 40vh;
-    overflow-y: auto;
-}
-
 .text-zone{
     border: 2px solid #999;
     display: flex;
